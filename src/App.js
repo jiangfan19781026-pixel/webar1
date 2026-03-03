@@ -9,7 +9,7 @@ export default function App() {
       */}
       <model-viewer
         style={styles.modelViewer}
-        src="/RobotExpressive.glb" /* 👈 记得确保你的模型在 public 文件夹下，并替换名字 */
+        src="/dogpuppy.glb" /* 👈 记得确保你的模型在 public 文件夹下，并替换名字 */
         alt="A 3D model for AR"
         ar
         ar-modes="scene-viewer quick-look"
