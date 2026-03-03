@@ -9,7 +9,7 @@
     "react-dom": "^19.0.0",
     "react-scripts": "^5.0.0",
     "@google/model-viewer": "4.1.0",
-    "three": "0.183.2"
+    "three": "0.172.0"
   },
   "devDependencies": {
     "@types/react": "19.0.0",
