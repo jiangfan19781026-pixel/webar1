@@ -45,7 +45,7 @@ const styles = {
     borderRadius: "4px",
     border: "none",
     position: "absolute",
-    bottom: "30px",
+    bottom: "80px",
     left: "50%",
     transform: "translateX(-50%)",
     padding: "12px 24px",
