@@ -1,5 +1,4 @@
 import React from "react";
-import "@google/model-viewer";
 
 export default function App() {
   return (
@@ -9,10 +8,11 @@ export default function App() {
       */}
       <model-viewer
         style={styles.modelViewer}
-        src="/dogpuppy.glb" /* 👈 记得确保你的模型在 public 文件夹下，并替换名字 */
-        alt="A 3D model for AR"
+        src={process.env.PUBLIC_URL + '/dogpuppy.glb'}
+        ios-src={process.env.PUBLIC_URL + '/dogpuppy.usdz'}
+        alt="A 3D model"
         ar
-        ar-modes="scene-viewer quick-look"
+        ar-modes="webxr scene-viewer quick-look"
         camera-controls
         auto-rotate
         shadow-intensity="1"
