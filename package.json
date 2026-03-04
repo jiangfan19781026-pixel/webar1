@@ -1,15 +1,15 @@
 {
-  "name": "react",
+  "name": "webar1",
   "version": "1.0.0",
-  "description": "",
-  "keywords": [],
-  "main": "src/index.tsx",
+  "description": "WebAR Project",
+  "homepage": "https://jiangfan19781026-pixel.github.io/webar1",
   "dependencies": {
     "@google/model-viewer": "4.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-scripts": "^5.0.0",
-    "three": "0.172.0"
+    "three": "0.172.0",
+    "gh-pages": "^6.3.0"
   },
   "devDependencies": {
     "@types/react": "19.0.0",
@@ -21,7 +21,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build"
   },
   "browserslist": [
     ">0.2%",
