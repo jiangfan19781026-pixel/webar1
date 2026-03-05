@@ -45,6 +45,7 @@ export default function App() {
   const [modelRotationY, setModelRotationY] = useState(0);
   const [modelRotationZ, setModelRotationZ] = useState(0);
   const [showUI, setShowUI] = useState(true);
+  const [isAdjustmentPanelExpanded, setIsAdjustmentPanelExpanded] = useState(false);
   const modelViewerRef = useRef(null);
 
   // 切换模型的处理函数
