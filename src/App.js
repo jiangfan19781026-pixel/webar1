@@ -108,6 +108,8 @@ export default function App() {
         style={styles.modelViewer}
         src={process.env.PUBLIC_URL + currentModel.src}
         ios-src={process.env.PUBLIC_URL + currentModel.iosSrc}
+        poster={process.env.PUBLIC_URL + currentModel.thumbnail}
+        reveal="auto"
         alt={currentModel.name}
         ar
         ar-modes="webxr scene-viewer quick-look"
