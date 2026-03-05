@@ -40,6 +40,11 @@ export default function App() {
   const [currentAnimation, setCurrentAnimation] = useState("");
   const [isAnimationPanelExpanded, setIsAnimationPanelExpanded] = useState(false);
   const [arPlacement, setArPlacement] = useState('floor');
+  const [modelScale, setModelScale] = useState(1);
+  const [modelRotationX, setModelRotationX] = useState(0);
+  const [modelRotationY, setModelRotationY] = useState(0);
+  const [modelRotationZ, setModelRotationZ] = useState(0);
+  const [showUI, setShowUI] = useState(true);
   const modelViewerRef = useRef(null);
 
   // 切换模型的处理函数
@@ -52,6 +57,27 @@ export default function App() {
       setAvailableAnimations([]);
       setCurrentAnimation("");
       setIsAnimationPanelExpanded(false);
+      // 重置模型大小和旋转
+      setModelScale(1);
+      setModelRotationX(0);
+      setModelRotationY(0);
+      setModelRotationZ(0);
+    }
+  };
+
+  // 重置模型大小和朝向
+  const handleResetModel = () => {
+    setModelScale(1);
+    setModelRotationX(0);
+    setModelRotationY(0);
+    setModelRotationZ(0);
+  };
+
+  // 复位摄像机视角
+  const handleResetCamera = () => {
+    if (modelViewerRef.current) {
+      modelViewerRef.current.cameraOrbit = "0deg 75deg 105%";
+      modelViewerRef.current.cameraTarget = "auto auto auto";
     }
   };
 
@@ -94,6 +120,11 @@ export default function App() {
 
   return (
     <div style={styles.container}>
+      {/* UI 显示/隐藏切换按钮 */}
+      <button style={styles.toggleUIButton} onClick={() => setShowUI(!showUI)}>
+        {showUI ? '👁️ 隐藏界面' : '👁️ 显示界面'}
+      </button>
+
       {/* 加载遮罩层 */}
       {isLoading && (
         <div style={{
@@ -117,26 +148,28 @@ export default function App() {
       )}
 
       {/* 顶部区域 - AR 放置模式选择 */}
-      <div style={styles.topPanel}>
-        <button
-          style={{
-            ...styles.arPlacementButton,
-            ...(arPlacement === 'floor' ? styles.arPlacementButtonActive : {})
-          }}
-          onClick={() => setArPlacement('floor')}
-        >
-          🔲 放置在地面
-        </button>
-        <button
-          style={{
-            ...styles.arPlacementButton,
-            ...(arPlacement === 'wall' ? styles.arPlacementButtonActive : {})
-          }}
-          onClick={() => setArPlacement('wall')}
-        >
-          🧱 贴在墙面
-        </button>
-      </div>
+      {showUI && (
+        <div style={styles.topPanel}>
+          <button
+            style={{
+              ...styles.arPlacementButton,
+              ...(arPlacement === 'floor' ? styles.arPlacementButtonActive : {})
+            }}
+            onClick={() => setArPlacement('floor')}
+          >
+            🔲 放置在地面
+          </button>
+          <button
+            style={{
+              ...styles.arPlacementButton,
+              ...(arPlacement === 'wall' ? styles.arPlacementButtonActive : {})
+            }}
+            onClick={() => setArPlacement('wall')}
+          >
+            🧱 贴在墙面
+          </button>
+        </div>
+      )}
 
       {/* 中间区域 - 模型展示 */}
       <div style={styles.modelContainer}>
@@ -144,7 +177,6 @@ export default function App() {
           ref={modelViewerRef}
           style={styles.modelViewer}
           src={process.env.PUBLIC_URL + currentModel.src}
-          ios-src={process.env.PUBLIC_URL + currentModel.iosSrc}
           poster={process.env.PUBLIC_URL + currentModel.thumbnail}
           reveal="auto"
           alt={currentModel.name}
@@ -152,76 +184,161 @@ export default function App() {
           ar-modes="webxr scene-viewer quick-look"
           ar-scale="auto"
           ar-placement={arPlacement}
+          scale={`${modelScale} ${modelScale} ${modelScale}`}
+          orientation={`${modelRotationX}deg ${modelRotationY}deg ${modelRotationZ}deg`}
           camera-controls
           auto-rotate
           autoplay
           animation-name={currentAnimation}
           shadow-intensity="1"
+          shadow-softness="0.8"
+          environment-image="neutral"
+          tone-mapping="neutral"
         >
           {/* 自定义一个进入 AR 模式的按钮 */}
           <button slot="ar-button" style={styles.arButton}>
             👋 放置在房间里
           </button>
         </model-viewer>
-      </div>
 
-      {/* 底部区域 - 动画切换和模型选择 */}
-      <div style={styles.bottomPanel}>
-        {/* 动画切换控制面板 */}
-        {availableAnimations.length > 0 && (
-          <div style={styles.animationControlsContainer}>
-            <button 
-              style={styles.animationToggleButton}
-              onClick={() => setIsAnimationPanelExpanded(!isAnimationPanelExpanded)}
-            >
-              🎬 动画切换 {isAnimationPanelExpanded ? '▲' : '▼'}
+        {/* 模型调整控制面板 */}
+        {showUI && (
+          <div style={styles.adjustmentPanel}>
+            <div style={styles.adjustmentTitle}>🛠️ 调整模型</div>
+            
+            <div style={styles.adjustmentControl}>
+              <label style={styles.adjustmentLabel}>
+                大小: {modelScale.toFixed(1)}x
+              </label>
+              <input
+                type="range"
+                min="0.1"
+                max="3"
+                step="0.1"
+                value={modelScale}
+                onChange={(e) => setModelScale(parseFloat(e.target.value))}
+                style={styles.slider}
+              />
+            </div>
+
+            <div style={styles.adjustmentControl}>
+              <label style={styles.adjustmentLabel}>
+                X轴 (俯仰): {modelRotationX}°
+              </label>
+              <input
+                type="range"
+                min="-180"
+                max="180"
+                step="1"
+                value={modelRotationX}
+                onChange={(e) => setModelRotationX(parseInt(e.target.value))}
+                style={styles.slider}
+              />
+            </div>
+
+            <div style={styles.adjustmentControl}>
+              <label style={styles.adjustmentLabel}>
+                Y轴 (水平): {modelRotationY}°
+              </label>
+              <input
+                type="range"
+                min="-180"
+                max="180"
+                step="1"
+                value={modelRotationY}
+                onChange={(e) => setModelRotationY(parseInt(e.target.value))}
+                style={styles.slider}
+              />
+            </div>
+
+            <div style={styles.adjustmentControl}>
+              <label style={styles.adjustmentLabel}>
+                Z轴 (侧翻): {modelRotationZ}°
+              </label>
+              <input
+                type="range"
+                min="-180"
+                max="180"
+                step="1"
+                value={modelRotationZ}
+                onChange={(e) => setModelRotationZ(parseInt(e.target.value))}
+                style={styles.slider}
+              />
+            </div>
+
+            <button style={styles.resetModelButton} onClick={handleResetModel}>
+              🔄 重置模型大小与朝向
             </button>
-            {isAnimationPanelExpanded && (
-              <div style={styles.animationButtonsScroll}>
-                {availableAnimations.map((animName, index) => (
-                  <button
-                    key={index}
-                    style={{
-                      ...styles.animationButton,
-                      ...(currentAnimation === animName ? styles.animationButtonActive : {})
-                    }}
-                    onClick={() => setCurrentAnimation(animName)}
-                  >
-                    {animName}
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
         )}
 
-        {/* 模型切换画廊 */}
-        <div style={styles.galleryContainer}>
-          <div style={styles.galleryTitle}>选择模型</div>
-          <div style={styles.galleryScroll}>
-            {models.map((model) => (
-              <div
-                key={model.id}
-                style={{
-                  ...styles.modelCard,
-                  ...(currentModel.id === model.id ? styles.modelCardActive : {})
-                }}
-                onClick={() => handleModelSwitch(model)}
+        {/* 复位视角按钮 */}
+        {showUI && (
+          <button style={styles.resetCameraButton} onClick={handleResetCamera}>
+            🎥 视角归位
+          </button>
+        )}
+      </div>
+
+      {/* 底部区域 - 动画切换和模型选择 */}
+      {showUI && (
+        <div style={styles.bottomPanel}>
+          {/* 动画切换控制面板 */}
+          {availableAnimations.length > 0 && (
+            <div style={styles.animationControlsContainer}>
+              <button 
+                style={styles.animationToggleButton}
+                onClick={() => setIsAnimationPanelExpanded(!isAnimationPanelExpanded)}
               >
-                <img 
-                  src={process.env.PUBLIC_URL + model.thumbnail}
-                  alt={model.name}
-                  style={styles.modelThumbnail}
-                />
-                <div style={styles.modelName}>{model.name}</div>
-                {currentModel.id === model.id && (
-                  <div style={styles.activeIndicator}>✓</div>
-                )}
-              </div>
-            ))}
+                🎬 动画切换 {isAnimationPanelExpanded ? '▲' : '▼'}
+              </button>
+              {isAnimationPanelExpanded && (
+                <div style={styles.animationButtonsScroll}>
+                  {availableAnimations.map((animName, index) => (
+                    <button
+                      key={index}
+                      style={{
+                        ...styles.animationButton,
+                        ...(currentAnimation === animName ? styles.animationButtonActive : {})
+                      }}
+                      onClick={() => setCurrentAnimation(animName)}
+                    >
+                      {animName}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 模型切换画廊 */}
+          <div style={styles.galleryContainer}>
+            <div style={styles.galleryTitle}>选择模型</div>
+            <div style={styles.galleryScroll}>
+              {models.map((model) => (
+                <div
+                  key={model.id}
+                  style={{
+                    ...styles.modelCard,
+                    ...(currentModel.id === model.id ? styles.modelCardActive : {})
+                  }}
+                  onClick={() => handleModelSwitch(model)}
+                >
+                  <img 
+                    src={process.env.PUBLIC_URL + model.thumbnail}
+                    alt={model.name}
+                    style={styles.modelThumbnail}
+                  />
+                  <div style={styles.modelName}>{model.name}</div>
+                  {currentModel.id === model.id && (
+                    <div style={styles.activeIndicator}>✓</div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -471,5 +588,93 @@ const styles = {
     color: "white",
     fontSize: "11px",
     fontWeight: "bold",
+  },
+  // 模型调整面板样式
+  adjustmentPanel: {
+    position: "absolute",
+    left: "20px",
+    top: "50%",
+    transform: "translateY(-50%)",
+    width: "200px",
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
+    borderRadius: "12px",
+    padding: "16px",
+    boxShadow: "0 4px 16px rgba(0, 0, 0, 0.2)",
+    backdropFilter: "blur(10px)",
+    zIndex: 50,
+  },
+  adjustmentTitle: {
+    fontSize: "14px",
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: "16px",
+    textAlign: "center",
+    letterSpacing: "0.5px",
+  },
+  adjustmentControl: {
+    marginBottom: "16px",
+  },
+  adjustmentLabel: {
+    display: "block",
+    fontSize: "12px",
+    fontWeight: "500",
+    color: "#555",
+    marginBottom: "8px",
+  },
+  slider: {
+    width: "100%",
+    height: "6px",
+    borderRadius: "3px",
+    outline: "none",
+    background: "linear-gradient(to right, #e0e0e0 0%, #2196F3 50%, #e0e0e0 100%)",
+    cursor: "pointer",
+  },
+  resetModelButton: {
+    width: "100%",
+    padding: "10px 16px",
+    backgroundColor: "#FF6B6B",
+    border: "none",
+    borderRadius: "8px",
+    fontSize: "13px",
+    fontWeight: "600",
+    color: "#ffffff",
+    cursor: "pointer",
+    transition: "all 0.3s ease",
+    boxShadow: "0 2px 8px rgba(255, 107, 107, 0.3)",
+    marginTop: "8px",
+  },
+  resetCameraButton: {
+    position: "absolute",
+    top: "15px",
+    right: "15px",
+    padding: "10px 16px",
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
+    border: "2px solid #e0e0e0",
+    borderRadius: "8px",
+    fontSize: "13px",
+    fontWeight: "600",
+    color: "#555",
+    cursor: "pointer",
+    transition: "all 0.3s ease",
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+    backdropFilter: "blur(10px)",
+    zIndex: 20,
+  },
+  toggleUIButton: {
+    position: "absolute",
+    top: "15px",
+    left: "15px",
+    zIndex: 100,
+    padding: "10px 15px",
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    backdropFilter: "blur(5px)",
+    border: "1px solid #ddd",
+    borderRadius: "8px",
+    cursor: "pointer",
+    fontWeight: "bold",
+    fontSize: "13px",
+    color: "#333",
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+    transition: "all 0.3s ease",
   },
 };
