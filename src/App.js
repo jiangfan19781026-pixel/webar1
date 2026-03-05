@@ -173,7 +173,7 @@ const styles = {
     borderRadius: "4px",
     border: "none",
     position: "absolute",
-    bottom: "80px",
+    top: "40px",
     left: "50%",
     transform: "translateX(-50%)",
     padding: "12px 24px",
@@ -181,6 +181,7 @@ const styles = {
     fontWeight: "bold",
     boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
     cursor: "pointer",
+    zIndex: 101,
   },
   loadingOverlay: {
     position: "absolute",
