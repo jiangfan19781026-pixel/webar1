@@ -7,28 +7,28 @@ const models = [
     name: "小狗",
     src: "/dogpuppy.glb",
     iosSrc: "/dogpuppy.usdz",
-    thumbnail: "/dog-thumb.png"
+    thumbnail: "/dogpuppy-thumb.png"
   },
   {
     id: 2,
-    name: "比武",
+    name: "牛武士",
     src: "/cowman.glb",
     iosSrc: "/cowman.usdz",
     thumbnail: "/cowman-thumb.png"
   },
   {
     id: 3,
-    name: "模型3",
-    src: "/model3.glb",
-    iosSrc: "/model3.usdz",
-    thumbnail: "/model3-thumb.png"
+    name: "蜘蛛侠",
+    src: "/spider-man.glb",
+    iosSrc: "/spider-man.usdz",
+    thumbnail: "/spider-man-thumb.png"
   },
   {
     id: 4,
-    name: "模型4",
-    src: "/model4.glb",
-    iosSrc: "/model4.usdz",
-    thumbnail: "/model4-thumb.png"
+    name: "黑老鼠",
+    src: "/black_rat.glb",
+    iosSrc: "/black_rat.usdz",
+    thumbnail: "/black_rat-thumb.png"
   }
 ];
 
@@ -351,11 +351,10 @@ const styles = {
   // 动画控制面板样式
   animationControlsContainer: {
     position: "absolute",
-    bottom: "160px",
-    left: "50%",
-    transform: "translateX(-50%)",
-    width: "90%",
-    maxWidth: "600px",
+    right: "20px",
+    top: "50%",
+    transform: "translateY(-50%)",
+    maxWidth: "200px",
     backgroundColor: "rgba(255, 255, 255, 0.95)",
     borderRadius: "16px",
     padding: "16px",
@@ -373,9 +372,11 @@ const styles = {
   },
   animationButtonsScroll: {
     display: "flex",
+    flexDirection: "column",
     gap: "8px",
-    overflowX: "auto",
-    overflowY: "hidden",
+    maxHeight: "400px",
+    overflowY: "auto",
+    overflowX: "hidden",
     padding: "4px",
     scrollbarWidth: "thin",
   },
