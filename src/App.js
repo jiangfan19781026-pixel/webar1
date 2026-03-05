@@ -181,7 +181,7 @@ export default function App() {
           reveal="auto"
           alt={currentModel.name}
           ar
-          ar-modes="webxr scene-viewer quick-look"
+          ar-modes="scene-viewer quick-look webxr"
           ar-scale="auto"
           ar-placement={arPlacement}
           scale={`${modelScale} ${modelScale} ${modelScale}`}
