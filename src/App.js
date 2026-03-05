@@ -202,76 +202,7 @@ export default function App() {
           </button>
         </model-viewer>
 
-        {/* 模型调整控制面板 */}
-        {showUI && (
-          <div style={styles.adjustmentPanel}>
-            <div style={styles.adjustmentTitle}>🛠️ 调整模型</div>
-            
-            <div style={styles.adjustmentControl}>
-              <label style={styles.adjustmentLabel}>
-                大小: {modelScale.toFixed(1)}x
-              </label>
-              <input
-                type="range"
-                min="0.1"
-                max="3"
-                step="0.1"
-                value={modelScale}
-                onChange={(e) => setModelScale(parseFloat(e.target.value))}
-                style={styles.slider}
-              />
-            </div>
 
-            <div style={styles.adjustmentControl}>
-              <label style={styles.adjustmentLabel}>
-                X轴 (俯仰): {modelRotationX}°
-              </label>
-              <input
-                type="range"
-                min="-180"
-                max="180"
-                step="1"
-                value={modelRotationX}
-                onChange={(e) => setModelRotationX(parseInt(e.target.value))}
-                style={styles.slider}
-              />
-            </div>
-
-            <div style={styles.adjustmentControl}>
-              <label style={styles.adjustmentLabel}>
-                Y轴 (水平): {modelRotationY}°
-              </label>
-              <input
-                type="range"
-                min="-180"
-                max="180"
-                step="1"
-                value={modelRotationY}
-                onChange={(e) => setModelRotationY(parseInt(e.target.value))}
-                style={styles.slider}
-              />
-            </div>
-
-            <div style={styles.adjustmentControl}>
-              <label style={styles.adjustmentLabel}>
-                Z轴 (侧翻): {modelRotationZ}°
-              </label>
-              <input
-                type="range"
-                min="-180"
-                max="180"
-                step="1"
-                value={modelRotationZ}
-                onChange={(e) => setModelRotationZ(parseInt(e.target.value))}
-                style={styles.slider}
-              />
-            </div>
-
-            <button style={styles.resetModelButton} onClick={handleResetModel}>
-              🔄 重置模型大小与朝向
-            </button>
-          </div>
-        )}
 
         {/* 复位视角按钮 */}
         {showUI && (
@@ -284,11 +215,88 @@ export default function App() {
       {/* 底部区域 - 动画切换和模型选择 */}
       {showUI && (
         <div style={styles.bottomPanel}>
+          {/* 模型调整控制面板 */}
+          <div style={styles.adjustmentControlsContainer}>
+            <button 
+              style={styles.panelToggleButton}
+              onClick={() => setIsAdjustmentPanelExpanded(!isAdjustmentPanelExpanded)}
+            >
+              🛠️ 调整模型大小与朝向 {isAdjustmentPanelExpanded ? '▲' : '▼'}
+            </button>
+            {isAdjustmentPanelExpanded && (
+              <div style={styles.slidersGrid}>
+                <div style={styles.adjustmentControl}>
+                  <label style={styles.adjustmentLabel}>
+                    大小: {modelScale.toFixed(1)}x
+                  </label>
+                  <input
+                    type="range"
+                    min="0.1"
+                    max="3"
+                    step="0.1"
+                    value={modelScale}
+                    onChange={(e) => setModelScale(parseFloat(e.target.value))}
+                    style={styles.slider}
+                  />
+                </div>
+
+                <div style={styles.adjustmentControl}>
+                  <label style={styles.adjustmentLabel}>
+                    X轴 (俯仰): {modelRotationX}°
+                  </label>
+                  <input
+                    type="range"
+                    min="-180"
+                    max="180"
+                    step="1"
+                    value={modelRotationX}
+                    onChange={(e) => setModelRotationX(parseInt(e.target.value))}
+                    style={styles.slider}
+                  />
+                </div>
+
+                <div style={styles.adjustmentControl}>
+                  <label style={styles.adjustmentLabel}>
+                    Y轴 (水平): {modelRotationY}°
+                  </label>
+                  <input
+                    type="range"
+                    min="-180"
+                    max="180"
+                    step="1"
+                    value={modelRotationY}
+                    onChange={(e) => setModelRotationY(parseInt(e.target.value))}
+                    style={styles.slider}
+                  />
+                </div>
+
+                <div style={styles.adjustmentControl}>
+                  <label style={styles.adjustmentLabel}>
+                    Z轴 (侧翻): {modelRotationZ}°
+                  </label>
+                  <input
+                    type="range"
+                    min="-180"
+                    max="180"
+                    step="1"
+                    value={modelRotationZ}
+                    onChange={(e) => setModelRotationZ(parseInt(e.target.value))}
+                    style={styles.slider}
+                  />
+                </div>
+
+                <button style={styles.resetModelButton} onClick={handleResetModel}>
+                  🔄 重置
+                </button>
+              </div>
+            )}
+          </div>
+
           {/* 动画切换控制面板 */}
           {availableAnimations.length > 0 && (
             <div style={styles.animationControlsContainer}>
               <button 
-                style={styles.animationToggleButton}
+                style={styles.panelToggleButton}
                 onClick={() => setIsAnimationPanelExpanded(!isAnimationPanelExpanded)}
               >
                 🎬 动画切换 {isAnimationPanelExpanded ? '▲' : '▼'}
@@ -473,7 +481,7 @@ const styles = {
     overflow: "hidden",
     boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
   },
-  animationToggleButton: {
+  panelToggleButton: {
     width: "100%",
     padding: "12px 20px",
     backgroundColor: "transparent",
@@ -591,32 +599,24 @@ const styles = {
     fontWeight: "bold",
   },
   // 模型调整面板样式
-  adjustmentPanel: {
-    position: "absolute",
-    left: "20px",
-    top: "50%",
-    transform: "translateY(-50%)",
-    width: "200px",
-    backgroundColor: "rgba(255, 255, 255, 0.95)",
+  adjustmentControlsContainer: {
+    backgroundColor: "rgba(248, 249, 250, 0.95)",
     borderRadius: "12px",
-    padding: "16px",
-    boxShadow: "0 4px 16px rgba(0, 0, 0, 0.2)",
-    backdropFilter: "blur(10px)",
-    zIndex: 50,
+    overflow: "hidden",
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
   },
-  adjustmentTitle: {
-    fontSize: "14px",
-    fontWeight: "600",
-    color: "#333",
-    marginBottom: "16px",
-    textAlign: "center",
-    letterSpacing: "0.5px",
+  slidersGrid: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "10px 15px",
+    padding: "12px",
+    backgroundColor: "#ffffff",
   },
   adjustmentControl: {
-    marginBottom: "16px",
+    display: "flex",
+    flexDirection: "column",
   },
   adjustmentLabel: {
-    display: "block",
     fontSize: "12px",
     fontWeight: "500",
     color: "#555",
@@ -631,7 +631,7 @@ const styles = {
     cursor: "pointer",
   },
   resetModelButton: {
-    width: "100%",
+    gridColumn: "1 / -1",
     padding: "10px 16px",
     backgroundColor: "#FF6B6B",
     border: "none",
@@ -642,11 +642,10 @@ const styles = {
     cursor: "pointer",
     transition: "all 0.3s ease",
     boxShadow: "0 2px 8px rgba(255, 107, 107, 0.3)",
-    marginTop: "8px",
   },
   resetCameraButton: {
     position: "absolute",
-    top: "15px",
+    top: "60px",
     right: "15px",
     padding: "10px 16px",
     backgroundColor: "rgba(255, 255, 255, 0.95)",
