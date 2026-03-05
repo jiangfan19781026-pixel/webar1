@@ -38,6 +38,8 @@ export default function App() {
   const [currentModel, setCurrentModel] = useState(models[0]);
   const [availableAnimations, setAvailableAnimations] = useState([]);
   const [currentAnimation, setCurrentAnimation] = useState("");
+  const [isAnimationPanelExpanded, setIsAnimationPanelExpanded] = useState(false);
+  const [arPlacement, setArPlacement] = useState('floor');
   const modelViewerRef = useRef(null);
 
   // 切换模型的处理函数
@@ -49,6 +51,7 @@ export default function App() {
       // 清空动画状态，防止上一个模型的动画名字残留
       setAvailableAnimations([]);
       setCurrentAnimation("");
+      setIsAnimationPanelExpanded(false);
     }
   };
 
@@ -113,74 +116,110 @@ export default function App() {
         </div>
       )}
 
-      {/* Model Viewer */}
-      <model-viewer
-        ref={modelViewerRef}
-        style={styles.modelViewer}
-        src={process.env.PUBLIC_URL + currentModel.src}
-        ios-src={process.env.PUBLIC_URL + currentModel.iosSrc}
-        poster={process.env.PUBLIC_URL + currentModel.thumbnail}
-        reveal="auto"
-        alt={currentModel.name}
-        ar
-        ar-modes="webxr scene-viewer quick-look"
-        camera-controls
-        auto-rotate
-        autoplay
-        animation-name={currentAnimation}
-        shadow-intensity="1"
-      >
-        {/* 自定义一个进入 AR 模式的按钮（可选，不写也会有默认按钮） */}
-        <button slot="ar-button" style={styles.arButton}>
-          👋 放置在房间里
+      {/* 顶部区域 - AR 放置模式选择 */}
+      <div style={styles.topPanel}>
+        <button
+          style={{
+            ...styles.arPlacementButton,
+            ...(arPlacement === 'floor' ? styles.arPlacementButtonActive : {})
+          }}
+          onClick={() => setArPlacement('floor')}
+        >
+          🔲 放置在地面
         </button>
-      </model-viewer>
+        <button
+          style={{
+            ...styles.arPlacementButton,
+            ...(arPlacement === 'wall' ? styles.arPlacementButtonActive : {})
+          }}
+          onClick={() => setArPlacement('wall')}
+        >
+          🧱 贴在墙面
+        </button>
+      </div>
 
-      {/* 动画切换控制面板 */}
-      {availableAnimations.length > 0 && (
-        <div style={styles.animationControlsContainer}>
-          <div style={styles.animationTitle}>🎬 动画切换</div>
-          <div style={styles.animationButtonsScroll}>
-            {availableAnimations.map((animName, index) => (
-              <button
-                key={index}
+      {/* 中间区域 - 模型展示 */}
+      <div style={styles.modelContainer}>
+        <model-viewer
+          ref={modelViewerRef}
+          style={styles.modelViewer}
+          src={process.env.PUBLIC_URL + currentModel.src}
+          ios-src={process.env.PUBLIC_URL + currentModel.iosSrc}
+          poster={process.env.PUBLIC_URL + currentModel.thumbnail}
+          reveal="auto"
+          alt={currentModel.name}
+          ar
+          ar-modes="webxr scene-viewer quick-look"
+          ar-scale="auto"
+          ar-placement={arPlacement}
+          camera-controls
+          auto-rotate
+          autoplay
+          animation-name={currentAnimation}
+          shadow-intensity="1"
+        >
+          {/* 自定义一个进入 AR 模式的按钮 */}
+          <button slot="ar-button" style={styles.arButton}>
+            👋 放置在房间里
+          </button>
+        </model-viewer>
+      </div>
+
+      {/* 底部区域 - 动画切换和模型选择 */}
+      <div style={styles.bottomPanel}>
+        {/* 动画切换控制面板 */}
+        {availableAnimations.length > 0 && (
+          <div style={styles.animationControlsContainer}>
+            <button 
+              style={styles.animationToggleButton}
+              onClick={() => setIsAnimationPanelExpanded(!isAnimationPanelExpanded)}
+            >
+              🎬 动画切换 {isAnimationPanelExpanded ? '▲' : '▼'}
+            </button>
+            {isAnimationPanelExpanded && (
+              <div style={styles.animationButtonsScroll}>
+                {availableAnimations.map((animName, index) => (
+                  <button
+                    key={index}
+                    style={{
+                      ...styles.animationButton,
+                      ...(currentAnimation === animName ? styles.animationButtonActive : {})
+                    }}
+                    onClick={() => setCurrentAnimation(animName)}
+                  >
+                    {animName}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 模型切换画廊 */}
+        <div style={styles.galleryContainer}>
+          <div style={styles.galleryTitle}>选择模型</div>
+          <div style={styles.galleryScroll}>
+            {models.map((model) => (
+              <div
+                key={model.id}
                 style={{
-                  ...styles.animationButton,
-                  ...(currentAnimation === animName ? styles.animationButtonActive : {})
+                  ...styles.modelCard,
+                  ...(currentModel.id === model.id ? styles.modelCardActive : {})
                 }}
-                onClick={() => setCurrentAnimation(animName)}
+                onClick={() => handleModelSwitch(model)}
               >
-                {animName}
-              </button>
+                <img 
+                  src={process.env.PUBLIC_URL + model.thumbnail}
+                  alt={model.name}
+                  style={styles.modelThumbnail}
+                />
+                <div style={styles.modelName}>{model.name}</div>
+                {currentModel.id === model.id && (
+                  <div style={styles.activeIndicator}>✓</div>
+                )}
+              </div>
             ))}
           </div>
-        </div>
-      )}
-
-      {/* 模型切换画廊 */}
-      <div style={styles.galleryContainer}>
-        <div style={styles.galleryTitle}>选择模型</div>
-        <div style={styles.galleryScroll}>
-          {models.map((model) => (
-            <div
-              key={model.id}
-              style={{
-                ...styles.modelCard,
-                ...(currentModel.id === model.id ? styles.modelCardActive : {})
-              }}
-              onClick={() => handleModelSwitch(model)}
-            >
-              <img 
-                src={process.env.PUBLIC_URL + model.thumbnail}
-                alt={model.name}
-                style={styles.modelThumbnail}
-              />
-              <div style={styles.modelName}>{model.name}</div>
-              {currentModel.id === model.id && (
-                <div style={styles.activeIndicator}>✓</div>
-              )}
-            </div>
-          ))}
         </div>
       </div>
     </div>
@@ -189,13 +228,34 @@ export default function App() {
 
 const styles = {
   container: {
+    display: "flex",
+    flexDirection: "column",
+    height: "100dvh",
     width: "100vw",
-    height: "100vh",
+    overflow: "hidden",
+    backgroundColor: "#f0f0f0",
+  },
+  topPanel: {
+    padding: "10px",
     display: "flex",
     justifyContent: "center",
-    alignItems: "center",
+    gap: "10px",
     backgroundColor: "#f0f0f0",
+  },
+  modelContainer: {
+    flex: 1,
+    width: "100%",
     position: "relative",
+    overflow: "hidden",
+  },
+  bottomPanel: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "10px",
+    padding: "15px 10px",
+    backgroundColor: "#ffffff",
+    borderTop: "1px solid #e0e0e0",
+    zIndex: 10,
   },
   modelViewer: {
     width: "100%",
@@ -204,18 +264,17 @@ const styles = {
   },
   arButton: {
     backgroundColor: "white",
-    borderRadius: "4px",
+    borderRadius: "8px",
     border: "none",
     position: "absolute",
-    top: "40px",
+    bottom: "20px",
     left: "50%",
     transform: "translateX(-50%)",
     padding: "12px 24px",
     fontSize: "16px",
     fontWeight: "bold",
-    boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
     cursor: "pointer",
-    zIndex: 101,
   },
   loadingOverlay: {
     position: "absolute",
@@ -268,120 +327,60 @@ const styles = {
     fontSize: "24px",
     fontWeight: "bold",
   },
-  // 画廊容器样式
-  galleryContainer: {
-    position: "absolute",
-    bottom: "20px",
-    left: "50%",
-    transform: "translateX(-50%)",
-    width: "90%",
-    maxWidth: "600px",
-    backgroundColor: "rgba(255, 255, 255, 0.95)",
-    borderRadius: "16px",
-    padding: "16px",
-    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
-    backdropFilter: "blur(10px)",
-    zIndex: 100,
-  },
-  galleryTitle: {
+  // AR 放置模式按钮样式
+  arPlacementButton: {
+    padding: "10px 20px",
+    backgroundColor: "#ffffff",
+    border: "2px solid #e0e0e0",
+    borderRadius: "8px",
     fontSize: "14px",
     fontWeight: "600",
-    color: "#333",
-    marginBottom: "12px",
-    textAlign: "center",
-    letterSpacing: "0.5px",
-  },
-  galleryScroll: {
-    display: "flex",
-    gap: "12px",
-    overflowX: "auto",
-    overflowY: "hidden",
-    padding: "4px",
-    scrollbarWidth: "thin",
-  },
-  modelCard: {
-    minWidth: "100px",
-    height: "100px",
-    backgroundColor: "#ffffff",
-    borderRadius: "12px",
-    border: "2px solid #e0e0e0",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
+    color: "#555",
     cursor: "pointer",
     transition: "all 0.3s ease",
-    position: "relative",
     boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+    whiteSpace: "nowrap",
   },
-  modelCardActive: {
-    backgroundColor: "#e3f2fd",
-    borderColor: "#2196F3",
-    transform: "scale(1.05)",
-    boxShadow: "0 4px 16px rgba(33, 150, 243, 0.3)",
-  },
-  modelThumbnail: {
-    width: "60px",
-    height: "60px",
-    objectFit: "cover",
-    borderRadius: "8px",
-    marginBottom: "8px",
-  },
-  modelName: {
-    fontSize: "12px",
-    fontWeight: "500",
-    color: "#555",
-    textAlign: "center",
-  },
-  activeIndicator: {
-    position: "absolute",
-    top: "4px",
-    right: "4px",
-    width: "20px",
-    height: "20px",
+  arPlacementButtonActive: {
     backgroundColor: "#4CAF50",
-    borderRadius: "50%",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    color: "white",
-    fontSize: "12px",
-    fontWeight: "bold",
+    borderColor: "#4CAF50",
+    color: "#ffffff",
+    transform: "scale(1.05)",
+    boxShadow: "0 4px 12px rgba(76, 175, 80, 0.4)",
   },
   // 动画控制面板样式
   animationControlsContainer: {
-    position: "absolute",
-    right: "20px",
-    top: "50%",
-    transform: "translateY(-50%)",
-    maxWidth: "200px",
-    backgroundColor: "rgba(255, 255, 255, 0.95)",
-    borderRadius: "16px",
-    padding: "16px",
-    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
-    backdropFilter: "blur(10px)",
-    zIndex: 100,
+    backgroundColor: "rgba(248, 249, 250, 0.95)",
+    borderRadius: "12px",
+    overflow: "hidden",
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
   },
-  animationTitle: {
+  animationToggleButton: {
+    width: "100%",
+    padding: "12px 20px",
+    backgroundColor: "transparent",
+    border: "none",
     fontSize: "14px",
     fontWeight: "600",
     color: "#333",
-    marginBottom: "12px",
-    textAlign: "center",
-    letterSpacing: "0.5px",
+    cursor: "pointer",
+    transition: "all 0.3s ease",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "8px",
   },
   animationButtonsScroll: {
     display: "flex",
-    flexDirection: "column",
+    flexDirection: "row",
     gap: "8px",
-    maxHeight: "400px",
-    overflowY: "auto",
-    overflowX: "hidden",
-    padding: "4px",
+    overflowX: "auto",
+    overflowY: "hidden",
+    padding: "0 12px 12px 12px",
     scrollbarWidth: "thin",
   },
   animationButton: {
-    minWidth: "80px",
+    minWidth: "100px",
     padding: "10px 16px",
     backgroundColor: "#ffffff",
     border: "2px solid #e0e0e0",
@@ -391,7 +390,7 @@ const styles = {
     color: "#555",
     cursor: "pointer",
     transition: "all 0.3s ease",
-    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+    textAlign: "center",
     whiteSpace: "nowrap",
   },
   animationButtonActive: {
@@ -399,6 +398,78 @@ const styles = {
     borderColor: "#FF6B6B",
     color: "#ffffff",
     transform: "scale(1.05)",
-    boxShadow: "0 4px 16px rgba(255, 107, 107, 0.4)",
+    boxShadow: "0 2px 8px rgba(255, 107, 107, 0.3)",
+  },
+  // 画廊容器样式
+  galleryContainer: {
+    backgroundColor: "rgba(248, 249, 250, 0.95)",
+    borderRadius: "12px",
+    padding: "12px",
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+  },
+  galleryTitle: {
+    fontSize: "14px",
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: "10px",
+    textAlign: "center",
+    letterSpacing: "0.5px",
+  },
+  galleryScroll: {
+    display: "flex",
+    gap: "10px",
+    overflowX: "auto",
+    overflowY: "hidden",
+    padding: "4px",
+    scrollbarWidth: "thin",
+  },
+  modelCard: {
+    minWidth: "90px",
+    height: "90px",
+    backgroundColor: "#ffffff",
+    borderRadius: "10px",
+    border: "2px solid #e0e0e0",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    transition: "all 0.3s ease",
+    position: "relative",
+    boxShadow: "0 2px 6px rgba(0, 0, 0, 0.1)",
+  },
+  modelCardActive: {
+    backgroundColor: "#e3f2fd",
+    borderColor: "#2196F3",
+    transform: "scale(1.05)",
+    boxShadow: "0 4px 12px rgba(33, 150, 243, 0.3)",
+  },
+  modelThumbnail: {
+    width: "50px",
+    height: "50px",
+    objectFit: "cover",
+    borderRadius: "6px",
+    marginBottom: "6px",
+  },
+  modelName: {
+    fontSize: "11px",
+    fontWeight: "500",
+    color: "#555",
+    textAlign: "center",
+  },
+  activeIndicator: {
+    position: "absolute",
+    top: "4px",
+    right: "4px",
+    width: "18px",
+    height: "18px",
+    backgroundColor: "#4CAF50",
+    borderRadius: "50%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "white",
+    fontSize: "11px",
+    fontWeight: "bold",
   },
 };
