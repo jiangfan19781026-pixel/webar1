@@ -36,7 +36,8 @@ export default function App() {
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [currentModel, setCurrentModel] = useState(models[0]);
-  const [animationName, setAnimationName] = useState("");
+  const [availableAnimations, setAvailableAnimations] = useState([]);
+  const [currentAnimation, setCurrentAnimation] = useState("");
   const modelViewerRef = useRef(null);
 
   // 切换模型的处理函数
@@ -45,6 +46,9 @@ export default function App() {
       setCurrentModel(model);
       setIsLoading(true);
       setLoadingProgress(0);
+      // 清空动画状态，防止上一个模型的动画名字残留
+      setAvailableAnimations([]);
+      setCurrentAnimation("");
     }
   };
 
@@ -65,6 +69,13 @@ export default function App() {
         setTimeout(() => {
           setIsLoading(false);
         }, 300);
+        
+        // 读取模型的可用动画列表
+        if (modelViewer.availableAnimations && modelViewer.availableAnimations.length > 0) {
+          const animations = modelViewer.availableAnimations;
+          setAvailableAnimations(animations);
+          setCurrentAnimation(animations[0]); // 设置第一个动画为默认动画
+        }
       };
 
       modelViewer.addEventListener('progress', handleProgress);
@@ -116,7 +127,7 @@ export default function App() {
         camera-controls
         auto-rotate
         autoplay
-        animation-name={animationName}
+        animation-name={currentAnimation}
         shadow-intensity="1"
       >
         {/* 自定义一个进入 AR 模式的按钮（可选，不写也会有默认按钮） */}
@@ -124,6 +135,27 @@ export default function App() {
           👋 放置在房间里
         </button>
       </model-viewer>
+
+      {/* 动画切换控制面板 */}
+      {availableAnimations.length > 0 && (
+        <div style={styles.animationControlsContainer}>
+          <div style={styles.animationTitle}>🎬 动画切换</div>
+          <div style={styles.animationButtonsScroll}>
+            {availableAnimations.map((animName, index) => (
+              <button
+                key={index}
+                style={{
+                  ...styles.animationButton,
+                  ...(currentAnimation === animName ? styles.animationButtonActive : {})
+                }}
+                onClick={() => setCurrentAnimation(animName)}
+              >
+                {animName}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* 模型切换画廊 */}
       <div style={styles.galleryContainer}>
@@ -315,5 +347,57 @@ const styles = {
     color: "white",
     fontSize: "12px",
     fontWeight: "bold",
+  },
+  // 动画控制面板样式
+  animationControlsContainer: {
+    position: "absolute",
+    bottom: "160px",
+    left: "50%",
+    transform: "translateX(-50%)",
+    width: "90%",
+    maxWidth: "600px",
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
+    borderRadius: "16px",
+    padding: "16px",
+    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.2)",
+    backdropFilter: "blur(10px)",
+    zIndex: 100,
+  },
+  animationTitle: {
+    fontSize: "14px",
+    fontWeight: "600",
+    color: "#333",
+    marginBottom: "12px",
+    textAlign: "center",
+    letterSpacing: "0.5px",
+  },
+  animationButtonsScroll: {
+    display: "flex",
+    gap: "8px",
+    overflowX: "auto",
+    overflowY: "hidden",
+    padding: "4px",
+    scrollbarWidth: "thin",
+  },
+  animationButton: {
+    minWidth: "80px",
+    padding: "10px 16px",
+    backgroundColor: "#ffffff",
+    border: "2px solid #e0e0e0",
+    borderRadius: "8px",
+    fontSize: "13px",
+    fontWeight: "500",
+    color: "#555",
+    cursor: "pointer",
+    transition: "all 0.3s ease",
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+    whiteSpace: "nowrap",
+  },
+  animationButtonActive: {
+    backgroundColor: "#FF6B6B",
+    borderColor: "#FF6B6B",
+    color: "#ffffff",
+    transform: "scale(1.05)",
+    boxShadow: "0 4px 16px rgba(255, 107, 107, 0.4)",
   },
 };
