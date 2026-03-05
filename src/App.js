@@ -7,28 +7,32 @@ const models = [
     name: "小狗",
     src: "/dogpuppy.glb",
     iosSrc: "/dogpuppy.usdz",
-    thumbnail: "/dogpuppy-thumb.png"
+    thumbnail: "/dogpuppy-thumb.png",
+    defaultRotationY: 180
   },
   {
     id: 2,
     name: "牛武士",
     src: "/cowman.glb",
     iosSrc: "/cowman.usdz",
-    thumbnail: "/cowman-thumb.png"
+    thumbnail: "/cowman-thumb.png",
+    defaultRotationY: 180
   },
   {
     id: 3,
     name: "蜘蛛侠",
     src: "/spider-man.glb",
     iosSrc: "/spider-man.usdz",
-    thumbnail: "/spider-man-thumb.png"
+    thumbnail: "/spider-man-thumb.png",
+    defaultRotationY: 180
   },
   {
     id: 4,
     name: "黑老鼠",
     src: "/black_rat.glb",
     iosSrc: "/black_rat.usdz",
-    thumbnail: "/black_rat-thumb.png"
+    thumbnail: "/black_rat-thumb.png",
+    defaultRotationY: 180
   }
 ];
 
@@ -42,7 +46,7 @@ export default function App() {
   const [arPlacement, setArPlacement] = useState('floor');
   const [modelScale, setModelScale] = useState(1);
   const [modelRotationX, setModelRotationX] = useState(0);
-  const [modelRotationY, setModelRotationY] = useState(0);
+  const [modelRotationY, setModelRotationY] = useState(models[0].defaultRotationY);
   const [modelRotationZ, setModelRotationZ] = useState(0);
   const [showUI, setShowUI] = useState(true);
   const [isAdjustmentPanelExpanded, setIsAdjustmentPanelExpanded] = useState(false);
